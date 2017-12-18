@@ -14,7 +14,7 @@ def convert_labels_to_ints(labels):
     return (labels == "f").astype(int)
 
 def convert_ints_to_labels(ints):
-    return ints.to_replace({0: "t", 1: "f"})
+    return ints.replace(to_replace={0: "t", 1: "f"})
 
 def load_data(data_path):
     data = pd.read_csv(data_path, delimiter=";", header=None)
@@ -48,17 +48,19 @@ def test_model(xgbclf, X_test, y_test):
     X_test = X_test.drop(columns=["key",])
     y_test = convert_labels_to_ints(y_test)
 
-    y_pred_proba = xgbclf.predict_proba(X_test)
+    y_pred_proba = xgbclf.predict_proba(X_test)[:, 1]
     score = roc_auc_score(y_true=y_test, y_score=y_pred_proba)
     return score
 
 def eval_model(xgbclf, X_eval):
-    key = X_eval["key"]
+    key = X_eval[["key",]]
     X_eval = X_eval.drop(columns=["key",])
 
     y_eval = xgbclf.predict(X_eval)
+    y_eval = pd.DataFrame(y_eval, columns=["group",])
     y_eval = convert_ints_to_labels(y_eval)
-    return pd.DataFrame([key, y_eval], columns=["key", "group"])
+
+    return pd.concat([key, y_eval], axis=1)
 
 def store_model(xgbclf, path):
     with open(path, "wb") as storage:
@@ -102,7 +104,7 @@ def do_eval(data_path, model_path, eval_path):
     y_eval = eval_model(xgbclf, X_eval)
 
     if eval_path is not None:
-        y_eval.to_csv(eval_path)
+        y_eval.to_csv(eval_path, index=False, header=None, sep=";")
     else:
         print(y_eval)
 

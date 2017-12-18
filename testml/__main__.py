@@ -30,7 +30,7 @@ def main():
         do_test(args.data_path, args.model_path)
 
     if mode == "eval":
-        do_eval(args.model_path, args.eval_path)
+        do_eval(args.data_path, args.model_path, args.eval_path)
 
 if __name__ == '__main__':
     main()
