@@ -7,6 +7,7 @@ parser = argparse.ArgumentParser(description="Split input data for test/train")
 parser.add_argument("--data", type=str, dest="data_path", help="Path to the data", required=True)
 parser.add_argument("--ratio", type=float, dest="ratio", default=0.33, help="test/train datasets ratio")
 parser.add_argument("--balanced", action="store_true", help="make balanced dataset for test")
+parser.add_argument("--compressions", type=str, dest="compression", help="type of compression to use")
 
 def load_data(data_path):
     data = pd.read_csv(data_path, delimiter=";", header=None)
@@ -30,11 +31,16 @@ def get_basename_and_extension(path):
 
     return basename, extension
 
-def build_path(basename, postfix, extension):
+def build_path(basename, postfix, extension, compression):
     if extension is None:
-        return "{}_{}".format(basename, postfix)
+        name = "{}_{}".format(basename, postfix)
     else:
-        return "{}_{}.{}".format(basename, postfix, extension)
+        name = "{}_{}.{}".format(basename, postfix, extension)
+
+    if compression is not None:
+        name = "{}.{}".format(name, compression)
+
+    return name
 
 def main():
     args = parser.parse_args()
@@ -58,10 +64,10 @@ def main():
     data_train = pd.concat([X_train, y_train], axis=1)
 
     basename, extension = get_basename_and_extension(args.data_path)
-    train_filename = build_path(basename, "train", extension)
-    test_filename = build_path(basename, "train", extension)
-    data_test.to_csv(train_filename, index=False, header=None, sep=";")
-    data_train.to_csv(test_filename, index=False, header=None, sep=";")
+    train_filename = build_path(basename, "train", extension, compression=args.compression)
+    test_filename = build_path(basename, "test", extension, compression=args.compression)
+    data_test.to_csv(train_filename, index=False, header=None, sep=";", compression=args.compression)
+    data_train.to_csv(test_filename, index=False, header=None, sep=";", compression=args.compression)
 
 if __name__ == '__main__':
     main()
