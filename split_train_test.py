@@ -16,12 +16,9 @@ def load_data(data_path):
     feature_column_names = {idx + 2: "f{}".format(idx) for idx in range(len(data.columns) - 2)}
     columns_names = {0: "key", 1: "group"}
     columns_names.update(feature_column_names)
-    data.rename(columns=columns_names, inplace = True)
+    data.rename(columns=columns_names, inplace=True)
 
-    X = data[list(feature_column_names.values()) + ["key",]]
-    y = data["group"]
-
-    return X, y
+    return data
 
 def get_basename_and_extension(path):
     basename = os.path.basename(path)
@@ -45,7 +42,11 @@ def build_path(basename, postfix, extension, compression):
 def main():
     args = parser.parse_args()
 
-    X, y = load_data(args.data_path)
+    data = load_data(args.data_path)
+    columns = list(data.columns.values)
+
+    y = data[["group",]]
+    X = data.drop(columns=["group",])
 
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.33, random_state=42, stratify=y)
 
@@ -66,6 +67,10 @@ def main():
     basename, extension = get_basename_and_extension(args.data_path)
     train_filename = build_path(basename, "train", extension, compression=args.compression)
     test_filename = build_path(basename, "test", extension, compression=args.compression)
+
+    data_test = data_test[columns]
+    data_train = data_train[columns]
+
     data_test.to_csv(test_filename, index=False, header=None, sep=";", compression=args.compression)
     data_train.to_csv(train_filename, index=False, header=None, sep=";", compression=args.compression)
 
