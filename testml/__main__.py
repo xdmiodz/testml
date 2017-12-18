@@ -2,9 +2,6 @@ from .testml import do_train, do_test, do_eval
 import logging
 import argparse
 
-
-
-
 logging.basicConfig(format='%(asctime)s - %(message)s', level=logging.INFO)
 
 launch_modes = ["train", "test", "eval"]
