@@ -51,15 +51,19 @@ def main():
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.33, random_state=42, stratify=y)
 
     if args.balanced:
-        balanced_data_size = min((y_test == "t").sum(), (y_test == "f").sum())
-        X_test_balanced_f = X_test[(y_test=="f")][:balanced_data_size]
-        y_test_balanced_f = y_test[(y_test=="f")][:balanced_data_size]
+        f_mask = (y_test == "t").as_matrix()
+        t_mask = (y_test == "f").as_matrix()
 
-        X_test_balanced_t = X_test[(y_test=="t")][:balanced_data_size]
-        y_test_balanced_t = y_test[(y_test=="t")][:balanced_data_size]
+        balanced_data_size = min(f_mask.sum(), t_mask.sum())
+
+        X_test_balanced_f = X_test[f_mask][:balanced_data_size]
+        y_test_balanced_f = y_test[f_mask][:balanced_data_size]
+
+        X_test_balanced_t = X_test[t_mask][:balanced_data_size]
+        y_test_balanced_t = y_test[t_mask][:balanced_data_size]
 
         X_test = pd.concat([X_test_balanced_f, X_test_balanced_t])
-        y_test = np.concat([y_test_balanced_f, y_test_balanced_t])
+        y_test = pd.concat([y_test_balanced_f, y_test_balanced_t])
 
     data_test = pd.concat([X_test, y_test], axis=1)
     data_train = pd.concat([X_train, y_train], axis=1)
