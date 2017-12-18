@@ -66,8 +66,8 @@ def main():
     basename, extension = get_basename_and_extension(args.data_path)
     train_filename = build_path(basename, "train", extension, compression=args.compression)
     test_filename = build_path(basename, "test", extension, compression=args.compression)
-    data_test.to_csv(train_filename, index=False, header=None, sep=";", compression=args.compression)
-    data_train.to_csv(test_filename, index=False, header=None, sep=";", compression=args.compression)
+    data_test.to_csv(test_filename, index=False, header=None, sep=";", compression=args.compression)
+    data_train.to_csv(train_filename, index=False, header=None, sep=";", compression=args.compression)
 
 if __name__ == '__main__':
     main()
